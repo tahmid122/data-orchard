@@ -7,9 +7,14 @@ const mongoose = require("mongoose");
 
 //db connection
 mongoose
-  .connect("mongodb://localhost:27017/usersDB")
+  .connect(
+    "mongodb+srv://tahmidAlam:tahmid824643@cluster0.1osvjkq.mongodb.net/usersDB"
+  )
   .then(() => console.log("DB is connected"))
-  .catch((error) => console.log(error.message));
+  .catch((error) => {
+    console.log(error.message);
+    process.exit(1);
+  });
 
 // schema
 
@@ -73,7 +78,7 @@ app.get("/", (req, res) => {
 // Request and response for Users
 app.get("/register", async (req, res) => {
   try {
-    const users = await Users.find().select({ name: 1 });
+    const users = await Users.find();
     res.status(200).send(users);
   } catch (error) {
     res.status(400).send(error.message);
@@ -101,8 +106,17 @@ app.post("/register", async (req, res) => {
   }
 });
 app.post("/login", async (req, res) => {
-  let user = await Users.find({ email: req.body.email });
-  res.send(user);
+  try {
+    const password = req.body.password;
+    const findUser = await Users.findOne({ email: req.body.email });
+    if (findUser.password == password) {
+      res.status(202).send({ message: "Successfully logged in" });
+    } else {
+      res.status(202).send({ message: "Invalid info" });
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 // invalid route
 app.use((req, res, next) => {
