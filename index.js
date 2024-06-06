@@ -73,7 +73,7 @@ app.get("/", (req, res) => {
 // Request and response for Users
 app.get("/register", async (req, res) => {
   try {
-    const users = await Users.find();
+    const users = await Users.find().select({ name: 1 });
     res.status(200).send(users);
   } catch (error) {
     res.status(400).send(error.message);
@@ -99,6 +99,10 @@ app.post("/register", async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
+});
+app.post("/login", async (req, res) => {
+  let user = await Users.find({ email: req.body.email });
+  res.send(user);
 });
 // invalid route
 app.use((req, res, next) => {
