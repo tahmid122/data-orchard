@@ -55,6 +55,10 @@ const usersSchema = new mongoose.Schema({
     type: Object,
     require: true,
   },
+  task: {
+    type: Array,
+    require: true,
+  },
   cv: {
     type: String,
     require: true,
@@ -96,6 +100,7 @@ app.post("/register", async (req, res) => {
       facebookLink: req.body.facebookLink,
       phone: req.body.phone,
       bank: req.body.bank,
+      task: req.body.task,
       cv: req.body.cv,
       about: req.body.about,
     });
@@ -110,7 +115,7 @@ app.post("/login", async (req, res) => {
     const password = req.body.password;
     const findUser = await Users.findOne({ email: req.body.email });
     if (findUser.password == password) {
-      res.status(202).send({ message: "Successfully logged in" });
+      res.status(202).send(findUser);
     } else {
       res.status(202).send({ message: "Invalid info" });
     }
@@ -118,6 +123,24 @@ app.post("/login", async (req, res) => {
     res.status(400).send(error.message);
   }
 });
+//task
+
+app.put("/task", async (req, res) => {
+  try {
+    const email = req.body.email;
+    const projectName = req.body.projectName;
+    const date = req.body.date;
+    const completedTask = req.body.completedTask;
+    const updateUser = await Users.findOneAndUpdate(
+      { email: email },
+      { $push: { task: { projectName, date, completedTask } } }
+    );
+    res.status(200).send(updateUser);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
 // invalid route
 app.use((req, res, next) => {
   res.status(404).send({ messgae: "404 not found" });
